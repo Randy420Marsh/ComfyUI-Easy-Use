@@ -631,8 +631,10 @@ class mathStringOperation:
 # ---------------------------------------------------------------Flow----------------------------------------------------------------------#
 try:
     from comfy_execution.graph_utils import GraphBuilder, is_link
+    from comfy_execution.graph import ExecutionBlocker
 except:
     GraphBuilder = None
+    ExecutionBlocker = None
 
 
 class whileLoopStart:
@@ -661,7 +663,7 @@ class whileLoopStart:
     def while_loop_open(self, condition, **kwargs):
         values = []
         for i in range(MAX_FLOW_NUM):
-            values.append(kwargs.get("initial_value%d" % i, None))
+            values.append(kwargs.get("initial_value%d" % i, None) if condition else ExecutionBlocker(None))
         return tuple(["stub"] + values)
 
 
@@ -1387,12 +1389,12 @@ class showAnything:
                 try:
                     if isinstance(val, str):
                         values.append(val)
-                    elif isinstance(val, list):
-                        values = val
+                    # elif isinstance(val, list):
+                    #     values = val
                     elif isinstance(val, (int, float, bool)):
                         values.append(str(val))
                     else:
-                        val = json.dumps(val)
+                        val = json.dumps(val, indent=4)
                         values.append(str(val))
                 except Exception:
                     values.append(str(val))
