@@ -1492,7 +1492,6 @@ class convertAnything:
             params = bool(anything)
         return (params,)
 
-# 将所有类型的内容都转成字符串输出
 class showAnything:
     @classmethod
     def INPUT_TYPES(s):
@@ -1512,19 +1511,20 @@ class showAnything:
         values = []
         if "anything" in kwargs:
             for val in kwargs['anything']:
-                try:
-                    if isinstance(val, str):
-                        values.append(val)
-                    # elif isinstance(val, list):
-                    #     values = val
-                    elif isinstance(val, (int, float, bool)):
-                        values.append(str(val))
-                    else:
-                        val = json.dumps(val, indent=4)
-                        values.append(str(val))
-                except Exception:
+                if isinstance(val, str):
+                    values.append(val)
+                elif isinstance(val, (int, float, bool)):
                     values.append(str(val))
-                    pass
+                elif isinstance(val, list) and len(val) <= 30:
+                    values = val
+                elif val is not None:
+                    try:
+                        values.append(json.dumps(val, indent=4, ensure_ascii=False))
+                    except Exception:
+                        try:
+                            values.append(str(val))
+                        except Exception:
+                            raise Exception('source exists, but could not be serialized.')
 
         if not extra_pnginfo:
             pass
